@@ -164,4 +164,125 @@ class SupabaseService {
 
     return response;
   }
+
+  static Future<List<dynamic>> searchUsers(String query) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) return [];
+
+    final myId = client.auth.currentUser!.id;
+
+    final response = await client
+        .from('profiles')
+        .select()
+        .ilike('username', '%$query%')
+        .neq('id', myId)
+        .limit(20);
+
+    return response;
+  }
+
+  static Future<List<dynamic>> fetchPublicUserGames(String targetUserId) async {
+    final response = await client
+        .from('user_games')
+        .select()
+        .eq('user_id', targetUserId)
+        .order('created_at', ascending: false);
+    return response;
+  }
+
+  static Future<bool> isFollowing(String targetUserId) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) return false;
+
+    final myId = client.auth.currentUser!.id;
+    final response = await client
+        .from('followers')
+        .select()
+        .eq('follower_id', myId)
+        .eq('following_id', targetUserId);
+
+    return response.isNotEmpty;
+  }
+
+  static Future<void> followUser(String targetUserId) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) throw Exception('No autenticado.');
+
+    final myId = client.auth.currentUser!.id;
+    await client.from('followers').insert({
+      'follower_id': myId,
+      'following_id': targetUserId,
+    });
+  }
+
+  static Future<void> unfollowUser(String targetUserId) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) throw Exception('No autenticado.');
+
+    final myId = client.auth.currentUser!.id;
+    await client
+        .from('followers')
+        .delete()
+        .eq('follower_id', myId)
+        .eq('following_id', targetUserId);
+  }
+
+  static Future<Map<String, dynamic>?> getUserProfile(String userId) async {
+    final response = await client
+        .from('profiles')
+        .select()
+        .eq('id', userId)
+        .maybeSingle();
+    return response;
+  }
+
+  static Future<int> getFollowersCount(String userId) async {
+    final response = await client
+        .from('followers')
+        .select('follower_id')
+        .eq('following_id', userId);
+    return (response as List).length;
+  }
+
+  static Future<int> getFollowingCount(String userId) async {
+    final response = await client
+        .from('followers')
+        .select('following_id')
+        .eq('follower_id', userId);
+    return (response as List).length;
+  }
+
+  static Future<List<dynamic>> fetchPublicUserLists(String targetUserId) async {
+    final response = await client
+        .from('custom_lists')
+        .select()
+        .eq('user_id', targetUserId)
+        .order('created_at', ascending: false);
+    return response;
+  }
+
+  static Future<List<dynamic>> fetchActivityFeed() async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) return [];
+
+    final myId = client.auth.currentUser!.id;
+
+    final followingData = await client
+        .from('followers')
+        .select('following_id')
+        .eq('follower_id', myId);
+
+    final followingIds = followingData.map((f) => f['following_id']).toList();
+
+    if (followingIds.isEmpty) return [];
+
+    final response = await client
+        .from('activity_feed')
+        .select()
+        .inFilter('user_id', followingIds)
+        .order('created_at', ascending: false)
+        .limit(30);
+
+    return response;
+  }
 }

@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'detail_screen.dart';
 import 'library_screen.dart';
 import 'profile_screen.dart';
+import 'community_screen.dart';
+import 'feed_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -125,13 +127,6 @@ class _SearchScreenState extends State<SearchScreen> {
           final name = (game['name'] ?? '').toLowerCase();
           final summary = (game['summary'] ?? '').toLowerCase();
 
-          if (summary.trim().isEmpty) return false;
-
-          final companies = game['involved_companies'];
-          if (companies == null || companies is! List || companies.isEmpty) {
-            return false;
-          }
-
           final fullText = '$name $summary';
           for (var word in forbiddenKeywords) {
             if (fullText.contains(word)) return false;
@@ -175,6 +170,29 @@ class _SearchScreenState extends State<SearchScreen> {
         backgroundColor: const Color(0xFF1C2228),
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.dynamic_feed, color: Colors.greenAccent),
+            tooltip: 'Actividad',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FeedScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.people, color: Colors.greenAccent),
+            tooltip: 'Comunidad',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CommunityScreen(),
+                ),
+              );
+            },
+          ),
+
           IconButton(
             icon: const Icon(Icons.bookmark, color: Colors.greenAccent),
             tooltip: 'Mi Biblioteca',
