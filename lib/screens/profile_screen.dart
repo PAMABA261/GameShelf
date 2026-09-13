@@ -82,16 +82,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : ListView(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.greenAccent.withOpacity(0.2),
-                  child: const Icon(
-                    Icons.person,
-                    size: 50,
-                    color: Colors.greenAccent,
-                  ),
+                Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Container(
+                      height: 120,
+                      margin: const EdgeInsets.only(bottom: 50),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xFF0F2027),
+                            Color(0xFF203A43),
+                            Color(0xFF2C5364),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(12),
+                        ),
+                      ),
+                    ),
+                    CircleAvatar(
+                      radius: 54,
+                      backgroundColor: const Color(0xFF1C2228),
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.greenAccent.withOpacity(0.2),
+                        child: const Icon(
+                          Icons.person,
+                          size: 50,
+                          color: Colors.greenAccent,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Text(
                   '@$_username',
                   textAlign: TextAlign.center,
@@ -101,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -113,17 +140,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _buildStatColumn('Juegos', _gamesCount),
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Colors.grey[700],
-                      ), // Divisor
+                      Container(width: 1, height: 40, color: Colors.grey[700]),
                       _buildStatColumn('Seguidores', _followersCount),
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Colors.grey[700],
-                      ), // Divisor
+                      Container(width: 1, height: 40, color: Colors.grey[700]),
                       _buildStatColumn('Siguiendo', _followingCount),
                     ],
                   ),

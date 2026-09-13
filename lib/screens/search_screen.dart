@@ -87,8 +87,8 @@ class _SearchScreenState extends State<SearchScreen> {
       final response = await http.post(
         url,
         headers: {
-          'Client-ID': '###',
-          'Authorization': 'Bearer ###',
+          'Client-ID': 'lcgl4fyetyqozygtae145slsb7hup8',
+          'Authorization': 'Bearer yhkdljdry753rq5alsul6bahe2c41v',
           'Accept': 'application/json',
         },
         body:
@@ -169,51 +169,6 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         backgroundColor: const Color(0xFF1C2228),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.dynamic_feed, color: Colors.greenAccent),
-            tooltip: 'Actividad',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const FeedScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.people, color: Colors.greenAccent),
-            tooltip: 'Comunidad',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CommunityScreen(),
-                ),
-              );
-            },
-          ),
-
-          IconButton(
-            icon: const Icon(Icons.bookmark, color: Colors.greenAccent),
-            tooltip: 'Mi Biblioteca',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const LibraryScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.greenAccent),
-            tooltip: 'Mi Perfil',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [

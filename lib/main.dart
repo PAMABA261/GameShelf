@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/login_screen.dart';
-import 'screens/search_screen.dart';
+import 'screens/main_screen.dart';
 import 'services/supabase_service.dart';
 
 Future<void> main() async {
@@ -31,7 +31,7 @@ class BackloggdCloneApp extends StatelessWidget {
           surface: const Color(0xFF1C2228),
         ),
       ),
-      home: initialRouteIsLoggedIn ? const SearchScreen() : const LoginScreen(),
+      home: initialRouteIsLoggedIn ? const MainScreen() : const LoginScreen(),
     );
   }
 }

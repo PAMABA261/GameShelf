@@ -60,117 +60,136 @@ class _FeedScreenState extends State<FeedScreen> {
           ? const Center(
               child: CircularProgressIndicator(color: Colors.greenAccent),
             )
-          : _feed.isEmpty
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Text(
-                  'Tu muro está vacío.\nSigue a otros usuarios en la Comunidad para ver a qué están jugando.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[500], fontSize: 16),
-                ),
-              ),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(12),
-              itemCount: _feed.length,
-              separatorBuilder: (context, index) =>
-                  const Divider(color: Colors.grey),
-              itemBuilder: (context, index) {
-                final item = _feed[index];
-                final username = item['username'] ?? 'Usuario';
-                final gameName = item['game_name'] ?? 'un juego';
-                final coverUrl = item['cover_url'] ?? '';
-                final actionText = _getActionText(item['status']);
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.greenAccent.withOpacity(0.2),
-                        child: const Icon(
-                          Icons.person,
-                          color: Colors.greenAccent,
-                          size: 20,
+          : RefreshIndicator(
+              color: Colors.greenAccent,
+              backgroundColor: const Color(0xFF2C3440),
+              onRefresh: _loadFeed,
+              child: _feed.isEmpty
+                  ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.3,
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  height: 1.4,
+                        Text(
+                          'Tu muro está vacío.\nSigue a otros usuarios en la Comunidad para ver a qué están jugando.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    )
+                  : ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(12),
+                      itemCount: _feed.length,
+                      separatorBuilder: (context, index) =>
+                          const Divider(color: Colors.grey),
+                      itemBuilder: (context, index) {
+                        final item = _feed[index];
+                        final username = item['username'] ?? 'Usuario';
+                        final gameName = item['game_name'] ?? 'un juego';
+                        final coverUrl = item['cover_url'] ?? '';
+                        final actionText = _getActionText(item['status']);
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Colors.greenAccent.withOpacity(
+                                  0.2,
                                 ),
-                                children: [
-                                  TextSpan(
-                                    text: '@$username ',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.greenAccent,
-                                    ),
-                                  ),
-                                  TextSpan(text: '$actionText '),
-                                  TextSpan(
-                                    text: gameName,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                                child: const Icon(
+                                  Icons.person,
+                                  color: Colors.greenAccent,
+                                  size: 20,
+                                ),
                               ),
-                            ),
-                            if (item['rating'] != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: Row(
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Nota: ',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
+                                    RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          height: 1.4,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: '@$username ',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.greenAccent,
+                                            ),
+                                          ),
+                                          TextSpan(text: '$actionText '),
+                                          TextSpan(
+                                            text: gameName,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Row(
-                                      children: List.generate(5, (starIndex) {
-                                        return Icon(
-                                          starIndex <
-                                                  (item['rating'] as num)
-                                                      .toDouble()
-                                              ? Icons.star
-                                              : Icons.star_border,
-                                          size: 14,
-                                          color: Colors.amber,
-                                        );
-                                      }),
-                                    ),
+                                    if (item['rating'] != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 4.0,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Text(
+                                              'Nota: ',
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            Row(
+                                              children: List.generate(5, (
+                                                starIndex,
+                                              ) {
+                                                return Icon(
+                                                  starIndex <
+                                                          (item['rating']
+                                                                  as num)
+                                                              .toDouble()
+                                                      ? Icons.star
+                                                      : Icons.star_border,
+                                                  size: 14,
+                                                  color: Colors.amber,
+                                                );
+                                              }),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: Image.network(
-                          coverUrl,
-                          width: 50,
-                          height: 70,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+                              const SizedBox(width: 12),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: Image.network(
+                                  coverUrl,
+                                  width: 50,
+                                  height: 70,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
             ),
     );
   }
