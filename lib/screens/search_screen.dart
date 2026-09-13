@@ -3,10 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'detail_screen.dart';
-import 'library_screen.dart';
-import 'profile_screen.dart';
-import 'community_screen.dart';
-import 'feed_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -87,8 +83,8 @@ class _SearchScreenState extends State<SearchScreen> {
       final response = await http.post(
         url,
         headers: {
-          'Client-ID': 'lcgl4fyetyqozygtae145slsb7hup8',
-          'Authorization': 'Bearer yhkdljdry753rq5alsul6bahe2c41v',
+          'Client-ID': '###',
+          'Authorization': 'Bearer ###',
           'Accept': 'application/json',
         },
         body:

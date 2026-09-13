@@ -211,7 +211,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      value:
+                      initialValue:
                           (currentPlatform != null &&
                               currentPlatform!.isNotEmpty)
                           ? currentPlatform
@@ -428,10 +428,10 @@ class _LibraryScreenState extends State<LibraryScreen>
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.blueAccent.withOpacity(0.15),
+                              color: Colors.blueAccent.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: Colors.blueAccent.withOpacity(0.5),
+                                color: Colors.blueAccent.withValues(alpha: 0.5),
                               ),
                             ),
                             child: Text(

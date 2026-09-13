@@ -100,8 +100,8 @@ class _FeedScreenState extends State<FeedScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               CircleAvatar(
-                                backgroundColor: Colors.greenAccent.withOpacity(
-                                  0.2,
+                                backgroundColor: Colors.greenAccent.withValues(
+                                  alpha: 0.2,
                                 ),
                                 child: const Icon(
                                   Icons.person,

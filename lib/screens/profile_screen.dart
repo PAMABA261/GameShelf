@@ -108,7 +108,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundColor: const Color(0xFF1C2228),
                       child: CircleAvatar(
                         radius: 50,
-                        backgroundColor: Colors.greenAccent.withOpacity(0.2),
+                        backgroundColor: Colors.greenAccent.withValues(
+                          alpha: 0.2,
+                        ),
                         child: const Icon(
                           Icons.person,
                           size: 50,

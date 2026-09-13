@@ -67,10 +67,11 @@ class _PublicProfileScreenState extends State<PublicProfileScreen>
       }
     } catch (e) {
       setState(() => _isFollowing = !_isFollowing);
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     }
   }
 
@@ -126,7 +127,9 @@ class _PublicProfileScreenState extends State<PublicProfileScreen>
                     children: [
                       CircleAvatar(
                         radius: 40,
-                        backgroundColor: Colors.greenAccent.withOpacity(0.2),
+                        backgroundColor: Colors.greenAccent.withValues(
+                          alpha: 0.2,
+                        ),
                         child: const Icon(
                           Icons.person,
                           size: 40,

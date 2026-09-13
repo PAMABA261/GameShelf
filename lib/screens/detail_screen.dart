@@ -452,7 +452,7 @@ class _DetailScreenState extends State<DetailScreen> {
             const SizedBox(height: 20),
 
             DropdownButtonFormField<String>(
-              value: _selectedPlatform,
+              initialValue: _selectedPlatform,
               decoration: InputDecoration(
                 labelText: 'Plataforma / Emulador',
                 labelStyle: const TextStyle(color: Colors.greenAccent),

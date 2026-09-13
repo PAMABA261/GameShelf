@@ -104,8 +104,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         final user = _users[index];
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: Colors.greenAccent.withOpacity(
-                              0.2,
+                            backgroundColor: Colors.greenAccent.withValues(
+                              alpha: 0.2,
                             ),
                             child: const Icon(
                               Icons.person,
