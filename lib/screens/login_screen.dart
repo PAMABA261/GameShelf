@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'search_screen.dart';
+import 'main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -57,9 +57,10 @@ class _LoginScreenState extends State<LoginScreen> {
         );
         if (!mounted) return;
 
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const SearchScreen()),
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+          (route) => false,
         );
       }
     } catch (e) {

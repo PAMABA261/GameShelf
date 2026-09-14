@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:io';
 
 class SupabaseService {
   static final SupabaseClient client = Supabase.instance.client;
@@ -236,6 +237,14 @@ class SupabaseService {
     return response;
   }
 
+  static Future<void> updateProfile(String newUsername, String newBio) async {
+    final userId = client.auth.currentUser!.id;
+    await client
+        .from('profiles')
+        .update({'username': newUsername, 'bio': newBio})
+        .eq('id', userId);
+  }
+
   static Future<int> getFollowersCount(String userId) async {
     final response = await client
         .from('followers')
@@ -284,5 +293,37 @@ class SupabaseService {
         .limit(30);
 
     return response;
+  }
+
+  static Future<void> updateFavoriteGames(List<dynamic> newFavorites) async {
+    final userId = client.auth.currentUser!.id;
+    await client
+        .from('profiles')
+        .update({'favorite_games': newFavorites})
+        .eq('id', userId);
+  }
+
+  static Future<String?> uploadProfileImage(File file, String type) async {
+    try {
+      final userId = client.auth.currentUser!.id;
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = '${userId}_${type}_$timestamp.jpg';
+
+      await client.storage
+          .from('perfiles')
+          .upload(fileName, file, fileOptions: const FileOptions(upsert: true));
+
+      final publicUrl = client.storage.from('perfiles').getPublicUrl(fileName);
+
+      await client
+          .from('profiles')
+          .update({'${type}_url': publicUrl})
+          .eq('id', userId);
+
+      return publicUrl;
+    } catch (e) {
+      debugPrint('Error al subir imagen: $e');
+      rethrow;
+    }
   }
 }
