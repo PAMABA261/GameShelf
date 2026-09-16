@@ -326,4 +326,62 @@ class SupabaseService {
       rethrow;
     }
   }
+
+  static Future<void> createPost({
+    required String title,
+    required String content,
+    int? gameId,
+    String? gameName,
+  }) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) throw Exception('No autenticado.');
+
+    final userId = client.auth.currentUser!.id;
+
+    await client.from('posts').insert({
+      'user_id': userId,
+      'title': title,
+      'content': content,
+      if (gameId != null) 'game_id': gameId,
+      if (gameName != null) 'game_name': gameName,
+    });
+  }
+
+  static Future<List<dynamic>> fetchAllPosts() async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) return [];
+
+    final response = await client
+        .from('posts')
+        .select('*, profiles(username, avatar_url)')
+        .order('created_at', ascending: false);
+
+    return response;
+  }
+
+  static Future<void> deletePost(String postId) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) throw Exception('No autenticado.');
+
+    final userId = client.auth.currentUser!.id;
+
+    await client.from('posts').delete().eq('id', postId).eq('user_id', userId);
+  }
+
+  static Future<void> updatePost({
+    required String postId,
+    required String title,
+    required String content,
+  }) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) throw Exception('No autenticado.');
+
+    final userId = client.auth.currentUser!.id;
+
+    await client
+        .from('posts')
+        .update({'title': title, 'content': content})
+        .eq('id', postId)
+        .eq('user_id', userId);
+  }
 }
