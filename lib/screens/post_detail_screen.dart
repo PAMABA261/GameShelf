@@ -16,10 +16,59 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   bool _isSubmitting = false;
   bool _hasChanges = false;
 
+  int _likeCount = 0;
+  bool _isLiked = false;
+  bool _isLoadingLikes = true;
+
   @override
   void initState() {
     super.initState();
     _currentPost = Map<String, dynamic>.from(widget.post);
+    _loadLikesData();
+  }
+
+  Future<void> _loadLikesData() async {
+    try {
+      final postId = _currentPost['id'].toString();
+      final count = await SupabaseService.getPostLikesCount(postId);
+      final liked = await SupabaseService.hasUserLikedPost(postId);
+
+      if (mounted) {
+        setState(() {
+          _likeCount = count;
+          _isLiked = liked;
+          _isLoadingLikes = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error cargando likes: $e');
+      if (mounted) {
+        setState(() => _isLoadingLikes = false);
+      }
+    }
+  }
+
+  Future<void> _handleToggleLike() async {
+    final wasLiked = _isLiked;
+
+    setState(() {
+      _isLiked = !wasLiked;
+      _likeCount += wasLiked ? -1 : 1;
+    });
+
+    try {
+      await SupabaseService.toggleLike(_currentPost['id'].toString(), wasLiked);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLiked = wasLiked;
+          _likeCount += wasLiked ? 1 : -1;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error de conexión al procesar el like: $e')),
+        );
+      }
+    }
   }
 
   void _showEditModal() {
@@ -315,6 +364,35 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   height: 1.6,
                 ),
               ),
+              const SizedBox(height: 30),
+              const Divider(color: Colors.grey),
+              const SizedBox(height: 10),
+
+              _isLoadingLikes
+                  ? const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(color: Colors.redAccent),
+                    )
+                  : Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            _isLiked ? Icons.favorite : Icons.favorite_border,
+                            color: _isLiked ? Colors.redAccent : Colors.grey,
+                            size: 32,
+                          ),
+                          onPressed: _handleToggleLike,
+                        ),
+                        Text(
+                          '$_likeCount',
+                          style: TextStyle(
+                            color: _isLiked ? Colors.redAccent : Colors.grey,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
             ],
           ),
         ),

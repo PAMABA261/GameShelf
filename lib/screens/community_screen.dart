@@ -381,9 +381,31 @@ class _CommunityScreenState extends State<CommunityScreen>
                   ),
                   const SizedBox(height: 12),
                   const Divider(color: Colors.grey),
+
+                  // --- AQUÍ ESTÁ EL CAMBIO ---
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // El contador de likes
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.favorite,
+                            color: Colors.redAccent,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${post['like_count'] ?? 0}',
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      // El botón de leer más
                       TextButton(
                         onPressed: () async {
                           final hasChanges = await Navigator.push(
@@ -405,6 +427,8 @@ class _CommunityScreenState extends State<CommunityScreen>
                       ),
                     ],
                   ),
+
+                  // --- FIN DEL CAMBIO ---
                 ],
               ),
             ),

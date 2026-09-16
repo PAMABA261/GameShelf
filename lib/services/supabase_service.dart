@@ -353,7 +353,7 @@ class SupabaseService {
 
     final response = await client
         .from('posts')
-        .select('*, profiles(username, avatar_url)')
+        .select('*, profiles!posts_user_id_fkey(username, avatar_url)')
         .order('created_at', ascending: false);
 
     return response;
@@ -383,5 +383,47 @@ class SupabaseService {
         .update({'title': title, 'content': content})
         .eq('id', postId)
         .eq('user_id', userId);
+  }
+
+  static Future<int> getPostLikesCount(String postId) async {
+    final response = await client
+        .from('post_likes')
+        .select('user_id')
+        .eq('post_id', postId);
+    return (response as List).length;
+  }
+
+  static Future<bool> hasUserLikedPost(String postId) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) return false;
+
+    final userId = client.auth.currentUser!.id;
+    final response = await client
+        .from('post_likes')
+        .select('user_id')
+        .eq('post_id', postId)
+        .eq('user_id', userId);
+
+    return response.isNotEmpty;
+  }
+
+  static Future<void> toggleLike(String postId, bool isCurrentlyLiked) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) throw Exception('No autenticado.');
+
+    final userId = client.auth.currentUser!.id;
+
+    if (isCurrentlyLiked) {
+      await client
+          .from('post_likes')
+          .delete()
+          .eq('post_id', postId)
+          .eq('user_id', userId);
+    } else {
+      await client.from('post_likes').insert({
+        'post_id': postId,
+        'user_id': userId,
+      });
+    }
   }
 }
