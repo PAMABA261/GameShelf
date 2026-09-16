@@ -382,11 +382,9 @@ class _CommunityScreenState extends State<CommunityScreen>
                   const SizedBox(height: 12),
                   const Divider(color: Colors.grey),
 
-                  // --- AQUÍ ESTÁ EL CAMBIO ---
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // El contador de likes
                       Row(
                         children: [
                           const Icon(
@@ -405,7 +403,6 @@ class _CommunityScreenState extends State<CommunityScreen>
                           ),
                         ],
                       ),
-                      // El botón de leer más
                       TextButton(
                         onPressed: () async {
                           final hasChanges = await Navigator.push(
@@ -427,8 +424,6 @@ class _CommunityScreenState extends State<CommunityScreen>
                       ),
                     ],
                   ),
-
-                  // --- FIN DEL CAMBIO ---
                 ],
               ),
             ),
