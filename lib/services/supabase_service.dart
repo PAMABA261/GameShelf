@@ -477,4 +477,82 @@ class SupabaseService {
       rethrow;
     }
   }
+
+  static Future<void> createPollOptions(
+    String postId,
+    List<String> options,
+  ) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) throw Exception('No autenticado.');
+
+    for (var option in options) {
+      if (option.trim().isNotEmpty) {
+        await client.from('poll_options').insert({
+          'post_id': postId,
+          'option_text': option.trim(),
+        });
+      }
+    }
+  }
+
+  static Future<List<dynamic>> fetchPollData(String postId) async {
+    final response = await client
+        .from('poll_options')
+        .select()
+        .eq('post_id', postId);
+    return response;
+  }
+
+  static Future<void> votePoll(String postId, String optionId) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) throw Exception('No autenticado.');
+
+    final userId = client.auth.currentUser!.id;
+
+    await client.from('poll_votes').upsert({
+      'user_id': userId,
+      'post_id': postId,
+      'poll_option_id': optionId,
+    }, onConflict: 'user_id, post_id');
+  }
+
+  static Future<void> createPollPost({
+    required String title,
+    required String question,
+    required List<String> options,
+  }) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) throw Exception('No autenticado.');
+
+    final userId = client.auth.currentUser!.id;
+
+    final postResponse = await client
+        .from('posts')
+        .insert({
+          'user_id': userId,
+          'title': title,
+          'content': question,
+          'is_poll': true,
+        })
+        .select()
+        .single();
+
+    final postId = postResponse['id'].toString();
+    await createPollOptions(postId, options);
+  }
+
+  static Future<String?> getUserPollVote(String postId) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) return null;
+
+    final userId = client.auth.currentUser!.id;
+    final response = await client
+        .from('poll_votes')
+        .select('poll_option_id')
+        .eq('post_id', postId)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    return response != null ? response['poll_option_id'].toString() : null;
+  }
 }
