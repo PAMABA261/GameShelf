@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:image_picker/image_picker.dart';
 import '../services/supabase_service.dart';
 import 'public_profile_screen.dart';
 import 'post_detail_screen.dart';
@@ -85,6 +87,7 @@ class _CommunityScreenState extends State<CommunityScreen>
     final titleController = TextEditingController();
     final contentController = TextEditingController();
     bool isSubmitting = false;
+    bool isUploadingImage = false;
 
     showModalBottomSheet(
       context: context,
@@ -96,6 +99,34 @@ class _CommunityScreenState extends State<CommunityScreen>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            Future<void> insertImage() async {
+              final picker = ImagePicker();
+              final image = await picker.pickImage(
+                source: ImageSource.gallery,
+                imageQuality: 70,
+              );
+              if (image == null) return;
+
+              setModalState(() => isUploadingImage = true);
+              try {
+                final url = await SupabaseService.uploadPostImage(
+                  File(image.path),
+                );
+                if (url != null) {
+                  final currentText = contentController.text;
+                  contentController.text = '$currentText\n![imagen]($url)\n';
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                }
+              } finally {
+                setModalState(() => isUploadingImage = false);
+              }
+            }
+
             return Padding(
               padding: EdgeInsets.only(
                 left: 16,
@@ -107,13 +138,37 @@ class _CommunityScreenState extends State<CommunityScreen>
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Nueva Publicación',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Nueva Publicación',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: isUploadingImage ? null : insertImage,
+                        icon: isUploadingImage
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.image,
+                                color: Colors.greenAccent,
+                              ),
+                        label: const Text(
+                          'Añadir foto',
+                          style: TextStyle(color: Colors.greenAccent),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   TextField(
@@ -133,9 +188,9 @@ class _CommunityScreenState extends State<CommunityScreen>
                   TextField(
                     controller: contentController,
                     style: const TextStyle(color: Colors.white),
-                    maxLines: 6,
+                    maxLines: 8,
                     decoration: InputDecoration(
-                      labelText: 'Contenido (escribe lo que quieras...)',
+                      labelText: 'Contenido (Soporta Markdown)',
                       labelStyle: TextStyle(color: Colors.grey[400]),
                       filled: true,
                       fillColor: const Color(0xFF2C3440),
@@ -151,7 +206,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                       foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 45),
                     ),
-                    onPressed: isSubmitting
+                    onPressed: isSubmitting || isUploadingImage
                         ? null
                         : () async {
                             final title = titleController.text.trim();
@@ -177,11 +232,10 @@ class _CommunityScreenState extends State<CommunityScreen>
                               _loadPosts();
                             } catch (e) {
                               setModalState(() => isSubmitting = false);
-                              if (context.mounted) {
+                              if (context.mounted)
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text('Error: $e')),
                                 );
-                              }
                             }
                           },
                     child: isSubmitting
@@ -324,6 +378,21 @@ class _CommunityScreenState extends State<CommunityScreen>
               ? profile['username']
               : 'Desconocido';
 
+          final rawContent = post['content'] ?? '';
+
+          // 1. Buscamos si hay alguna imagen oculta en el Markdown
+          final imgMatch = RegExp(r'!\[.*?\]\((.*?)\)').firstMatch(rawContent);
+          final String? previewImageUrl = imgMatch?.group(1);
+
+          // 2. Limpiamos el texto para que no salgan los códigos raros en la vista previa
+          final cleanContent = rawContent
+              .replaceAll(
+                RegExp(r'!\[.*?\]\(.*?\)'),
+                '',
+              ) // Borra la imagen del texto
+              .replaceAll(RegExp(r'[*#_]'), '') // Borra negritas y títulos
+              .trim();
+
           return Card(
             color: const Color(0xFF2C3440),
             margin: const EdgeInsets.only(bottom: 16),
@@ -368,17 +437,42 @@ class _CommunityScreenState extends State<CommunityScreen>
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    post['content'] ?? '',
-                    style: TextStyle(
-                      color: Colors.grey[300],
-                      fontSize: 14,
-                      height: 1.4,
+
+                  if (cleanContent.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      cleanContent,
+                      style: TextStyle(
+                        color: Colors.grey[300],
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 5,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  ],
+
+                  if (previewImageUrl != null) ...[
+                    const SizedBox(height: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        previewImageUrl,
+                        height: 160,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          height: 160,
+                          color: Colors.grey[800],
+                          child: const Center(
+                            child: Icon(Icons.broken_image, color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 12),
                   const Divider(color: Colors.grey),
 
@@ -412,7 +506,6 @@ class _CommunityScreenState extends State<CommunityScreen>
                                   PostDetailScreen(post: post),
                             ),
                           );
-
                           if (hasChanges == true && context.mounted) {
                             _loadPosts();
                           }

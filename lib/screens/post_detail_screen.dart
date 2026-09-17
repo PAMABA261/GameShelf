@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../services/supabase_service.dart';
 
 class PostDetailScreen extends StatefulWidget {
@@ -14,6 +17,7 @@ class PostDetailScreen extends StatefulWidget {
 class _PostDetailScreenState extends State<PostDetailScreen> {
   late Map<String, dynamic> _currentPost;
   bool _isSubmitting = false;
+  bool _isUploadingImage = false;
   bool _hasChanges = false;
 
   int _likeCount = 0;
@@ -81,6 +85,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     }
   }
 
+  // --- MÉTODOS DE COMENTARIOS ---
   Future<void> _loadCommentsData() async {
     try {
       final postId = _currentPost['id'].toString();
@@ -182,6 +187,34 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            Future<void> insertImage() async {
+              final picker = ImagePicker();
+              final image = await picker.pickImage(
+                source: ImageSource.gallery,
+                imageQuality: 70,
+              );
+              if (image == null) return;
+
+              setModalState(() => _isUploadingImage = true);
+              try {
+                final url = await SupabaseService.uploadPostImage(
+                  File(image.path),
+                );
+                if (url != null) {
+                  final currentText = contentController.text;
+                  contentController.text = '$currentText\n![imagen]($url)\n';
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error al subir: $e')));
+                }
+              } finally {
+                setModalState(() => _isUploadingImage = false);
+              }
+            }
+
             return Padding(
               padding: EdgeInsets.only(
                 left: 16,
@@ -193,20 +226,44 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Editar Publicación',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Editar Publicación',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: _isUploadingImage ? null : insertImage,
+                        icon: _isUploadingImage
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.image,
+                                color: Colors.greenAccent,
+                              ),
+                        label: const Text(
+                          'Añadir foto',
+                          style: TextStyle(color: Colors.greenAccent),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   TextField(
                     controller: titleController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      labelText: 'Título de la guía o reseña',
+                      labelText: 'Título',
                       labelStyle: const TextStyle(color: Colors.blueAccent),
                       filled: true,
                       fillColor: const Color(0xFF2C3440),
@@ -219,9 +276,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   TextField(
                     controller: contentController,
                     style: const TextStyle(color: Colors.white),
-                    maxLines: 6,
+                    maxLines: 8,
                     decoration: InputDecoration(
-                      labelText: 'Contenido',
+                      labelText: 'Contenido (Soporta Markdown)',
                       labelStyle: TextStyle(color: Colors.grey[400]),
                       filled: true,
                       fillColor: const Color(0xFF2C3440),
@@ -237,7 +294,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 45),
                     ),
-                    onPressed: _isSubmitting
+                    onPressed: _isSubmitting || _isUploadingImage
                         ? null
                         : () async {
                             final newTitle = titleController.text.trim();
@@ -338,13 +395,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             if (isOwner)
               IconButton(
                 icon: const Icon(Icons.edit, color: Colors.blueAccent),
-                tooltip: 'Editar publicación',
+                tooltip: 'Editar',
                 onPressed: _showEditModal,
               ),
             if (isOwner)
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.redAccent),
-                tooltip: 'Borrar publicación',
+                tooltip: 'Borrar',
                 onPressed: () async {
                   final confirmar = await showDialog<bool>(
                     context: context,
@@ -355,7 +412,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         style: TextStyle(color: Colors.white),
                       ),
                       content: const Text(
-                        '¿Estás seguro de que quieres eliminar esta publicación para siempre?',
+                        '¿Eliminar esta publicación para siempre?',
                         style: TextStyle(color: Colors.grey),
                       ),
                       actions: [
@@ -385,16 +442,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       if (context.mounted) {
                         Navigator.pop(context, true);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Publicación borrada con éxito'),
-                          ),
+                          const SnackBar(content: Text('Publicación borrada')),
                         );
                       }
                     } catch (e) {
                       if (context.mounted)
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error al borrar: $e')),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('Error: $e')));
                     }
                   }
                 },
@@ -445,6 +500,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 ],
               ),
               const SizedBox(height: 24),
+
               Text(
                 _currentPost['title'] ?? 'Sin título',
                 style: const TextStyle(
@@ -455,17 +511,41 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text(
-                _currentPost['content'] ?? '',
-                style: TextStyle(
-                  color: Colors.grey[300],
-                  fontSize: 16,
-                  height: 1.6,
-                ),
+
+              MarkdownBody(
+                data: _currentPost['content'] ?? '',
+                styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                    .copyWith(
+                      p: TextStyle(
+                        color: Colors.grey[300],
+                        fontSize: 16,
+                        height: 1.6,
+                      ),
+                      h1: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      h2: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      listBullet: const TextStyle(color: Colors.greenAccent),
+                    ),
+                imageBuilder: (uri, title, alt) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(uri.toString(), fit: BoxFit.cover),
+                    ),
+                  );
+                },
               ),
+
               const SizedBox(height: 20),
 
-              // Barra de Likes
               _isLoadingLikes
                   ? const Padding(
                       padding: EdgeInsets.all(16.0),
@@ -503,7 +583,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-
               Row(
                 children: [
                   Expanded(
@@ -549,7 +628,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-
               _isLoadingComments
                   ? const Center(
                       child: CircularProgressIndicator(

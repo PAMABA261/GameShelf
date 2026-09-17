@@ -460,4 +460,21 @@ class SupabaseService {
         .eq('id', commentId)
         .eq('user_id', userId);
   }
+
+  static Future<String?> uploadPostImage(File file) async {
+    try {
+      final userId = client.auth.currentUser!.id;
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = '${userId}_post_$timestamp.jpg';
+
+      await client.storage
+          .from('posts')
+          .upload(fileName, file, fileOptions: const FileOptions(upsert: true));
+
+      return client.storage.from('posts').getPublicUrl(fileName);
+    } catch (e) {
+      debugPrint('Error al subir imagen del post: $e');
+      rethrow;
+    }
+  }
 }
