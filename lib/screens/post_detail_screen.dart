@@ -20,11 +20,23 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   bool _isLiked = false;
   bool _isLoadingLikes = true;
 
+  List<dynamic> _comments = [];
+  bool _isLoadingComments = true;
+  bool _isSubmittingComment = false;
+  final TextEditingController _commentController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _currentPost = Map<String, dynamic>.from(widget.post);
     _loadLikesData();
+    _loadCommentsData();
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadLikesData() async {
@@ -42,9 +54,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       }
     } catch (e) {
       debugPrint('Error cargando likes: $e');
-      if (mounted) {
-        setState(() => _isLoadingLikes = false);
-      }
+      if (mounted) setState(() => _isLoadingLikes = false);
     }
   }
 
@@ -65,8 +75,93 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           _likeCount += wasLiked ? 1 : -1;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error de conexión al procesar el like: $e')),
+          SnackBar(content: Text('Error al procesar el like: $e')),
         );
+      }
+    }
+  }
+
+  Future<void> _loadCommentsData() async {
+    try {
+      final postId = _currentPost['id'].toString();
+      final comments = await SupabaseService.fetchComments(postId);
+      if (mounted) {
+        setState(() {
+          _comments = comments;
+          _isLoadingComments = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error cargando comentarios: $e');
+      if (mounted) setState(() => _isLoadingComments = false);
+    }
+  }
+
+  Future<void> _submitComment() async {
+    final text = _commentController.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() => _isSubmittingComment = true);
+    try {
+      await SupabaseService.addComment(_currentPost['id'].toString(), text);
+      _commentController.clear();
+      FocusScope.of(context).unfocus();
+      await _loadCommentsData();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al comentar: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmittingComment = false);
+    }
+  }
+
+  Future<void> _handleDeleteComment(String commentId) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2C3440),
+        title: const Text(
+          'Borrar comentario',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          '¿Quieres borrar este comentario?',
+          style: TextStyle(color: Colors.grey),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Borrar',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar == true) {
+      try {
+        await SupabaseService.deleteComment(commentId);
+        await _loadCommentsData();
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Comentario borrado')));
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error al borrar: $e')));
+        }
       }
     }
   }
@@ -158,7 +253,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             }
 
                             setModalState(() => _isSubmitting = true);
-
                             try {
                               await SupabaseService.updatePost(
                                 postId: _currentPost['id'].toString(),
@@ -297,11 +391,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         );
                       }
                     } catch (e) {
-                      if (context.mounted) {
+                      if (context.mounted)
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Error al borrar: $e')),
                         );
-                      }
                     }
                   }
                 },
@@ -318,11 +411,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   CircleAvatar(
                     backgroundColor: Colors.greenAccent.withValues(alpha: 0.2),
                     radius: 24,
-                    child: const Icon(
-                      Icons.person,
-                      color: Colors.greenAccent,
-                      size: 24,
-                    ),
+                    backgroundImage:
+                        profile != null && profile['avatar_url'] != null
+                        ? NetworkImage(profile['avatar_url'])
+                        : null,
+                    child: profile == null || profile['avatar_url'] == null
+                        ? const Icon(
+                            Icons.person,
+                            color: Colors.greenAccent,
+                            size: 24,
+                          )
+                        : null,
                   ),
                   const SizedBox(width: 12),
                   Column(
@@ -364,10 +463,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   height: 1.6,
                 ),
               ),
-              const SizedBox(height: 30),
-              const Divider(color: Colors.grey),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
 
+              // Barra de Likes
               _isLoadingLikes
                   ? const Padding(
                       padding: EdgeInsets.all(16.0),
@@ -379,7 +477,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           icon: Icon(
                             _isLiked ? Icons.favorite : Icons.favorite_border,
                             color: _isLiked ? Colors.redAccent : Colors.grey,
-                            size: 32,
+                            size: 28,
                           ),
                           onPressed: _handleToggleLike,
                         ),
@@ -387,11 +485,168 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           '$_likeCount',
                           style: TextStyle(
                             color: _isLiked ? Colors.redAccent : Colors.grey,
-                            fontSize: 20,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
+                    ),
+
+              const Divider(color: Colors.grey, height: 40),
+
+              const Text(
+                'Comentarios',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _commentController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Escribe un comentario...',
+                        hintStyle: TextStyle(color: Colors.grey[600]),
+                        filled: true,
+                        fillColor: const Color(0xFF2C3440),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _isSubmittingComment
+                      ? const Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.greenAccent,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        )
+                      : IconButton(
+                          icon: const Icon(
+                            Icons.send,
+                            color: Colors.greenAccent,
+                          ),
+                          onPressed: _submitComment,
+                        ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              _isLoadingComments
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.greenAccent,
+                      ),
+                    )
+                  : _comments.isEmpty
+                  ? Center(
+                      child: Text(
+                        'Aún no hay comentarios.\n¡Sé el primero en opinar!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey[500]),
+                      ),
+                    )
+                  : ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _comments.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final comment = _comments[index];
+                        final commentProfile = comment['profiles'];
+                        final commentUsername = commentProfile != null
+                            ? commentProfile['username']
+                            : 'Usuario';
+                        final isCommentOwner =
+                            currentUserId == comment['user_id'];
+
+                        return Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1C2228),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 12,
+                                    backgroundColor: Colors.greenAccent
+                                        .withValues(alpha: 0.2),
+                                    backgroundImage:
+                                        commentProfile != null &&
+                                            commentProfile['avatar_url'] != null
+                                        ? NetworkImage(
+                                            commentProfile['avatar_url'],
+                                          )
+                                        : null,
+                                    child:
+                                        commentProfile == null ||
+                                            commentProfile['avatar_url'] == null
+                                        ? const Icon(
+                                            Icons.person,
+                                            color: Colors.greenAccent,
+                                            size: 14,
+                                          )
+                                        : null,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '@$commentUsername',
+                                    style: const TextStyle(
+                                      color: Colors.greenAccent,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  if (isCommentOwner)
+                                    GestureDetector(
+                                      onTap: () => _handleDeleteComment(
+                                        comment['id'].toString(),
+                                      ),
+                                      child: const Icon(
+                                        Icons.delete,
+                                        color: Colors.redAccent,
+                                        size: 16,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                comment['content'],
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
             ],
           ),

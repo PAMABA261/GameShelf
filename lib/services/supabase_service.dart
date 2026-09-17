@@ -426,4 +426,38 @@ class SupabaseService {
       });
     }
   }
+
+  static Future<List<dynamic>> fetchComments(String postId) async {
+    final response = await client
+        .from('post_comments')
+        .select('*, profiles(username, avatar_url)')
+        .eq('post_id', postId)
+        .order('created_at', ascending: true);
+    return response;
+  }
+
+  static Future<void> addComment(String postId, String content) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) throw Exception('No autenticado.');
+
+    final userId = client.auth.currentUser!.id;
+    await client.from('post_comments').insert({
+      'post_id': postId,
+      'user_id': userId,
+      'content': content,
+    });
+  }
+
+  static Future<void> deleteComment(String commentId) async {
+    final authenticated = await ensureAuthenticated();
+    if (!authenticated) throw Exception('No autenticado.');
+
+    final userId = client.auth.currentUser!.id;
+
+    await client
+        .from('post_comments')
+        .delete()
+        .eq('id', commentId)
+        .eq('user_id', userId);
+  }
 }
