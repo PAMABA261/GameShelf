@@ -3,10 +3,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_screen.dart';
 import 'services/supabase_service.dart';
+import 'services/revenuecat_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SupabaseService.initialize();
+  await RevenueCatService.initialize();
 
   final bool hasSession = Supabase.instance.client.auth.currentSession != null;
 

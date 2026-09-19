@@ -6,7 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import '../services/supabase_service.dart';
 import 'lists_screen.dart';
-import 'login_screen.dart'; // <-- IMPORTACIÓN AÑADIDA
+import 'login_screen.dart';
+import 'paywall_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -456,6 +457,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 32),
                 const Divider(color: Colors.grey),
                 const SizedBox(height: 8),
+
+                // --- NUEVO BOTÓN PARA EL PAYWALL DE REVENUECAT ---
+                ListTile(
+                  leading: const Icon(Icons.star, color: Colors.amberAccent),
+                  title: const Text(
+                    'Backloggd PRO',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.grey,
+                    size: 16,
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PaywallScreen(),
+                      ),
+                    );
+                  },
+                ),
+
+                // -------------------------------------------------
                 ListTile(
                   leading: const Icon(
                     Icons.list_alt,
@@ -479,7 +504,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   },
                 ),
-                // --- BOTÓN DE CERRAR SESIÓN CORREGIDO ---
                 ListTile(
                   leading: const Icon(Icons.logout, color: Colors.redAccent),
                   title: const Text(
@@ -521,7 +545,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     if (confirmar == true) {
                       await SupabaseService.client.auth.signOut();
                       if (context.mounted) {
-                        // Navegación directa a LoginScreen borrando el historial
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                             builder: (context) => const LoginScreen(),
@@ -532,7 +555,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     }
                   },
                 ),
-                // ----------------------------------------
               ],
             ),
     );
