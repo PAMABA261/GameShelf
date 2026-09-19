@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
-import '../services/supabase_service.dart';
 import 'lists_screen.dart';
 import 'login_screen.dart';
 import 'paywall_screen.dart';
+import '../services/supabase_service.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,7 +18,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = true;
-  String _username = 'Cargando...';
+  String _username = 'Loading...';
   String _bio = '';
   String _avatarUrl = '';
   String _bannerUrl = '';
@@ -45,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       setState(() {
         if (profileData != null) {
-          _username = profileData['username'] ?? 'Usuario';
+          _username = profileData['username'] ?? 'User';
           _bio = profileData['bio'] ?? '';
           _avatarUrl = profileData['avatar_url'] ?? '';
           _bannerUrl = profileData['banner_url'] ?? '';
@@ -57,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error cargando perfil: $e');
+      debugPrint('Error loading profile: $e');
       setState(() => _isLoading = false);
     }
   }
@@ -84,7 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('¡Imagen actualizada con éxito!')),
+            const SnackBar(content: Text('Image successfully updated!')),
           );
         }
       }
@@ -92,7 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error al subir imagen: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error uploading image: $e')));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -109,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return AlertDialog(
           backgroundColor: const Color(0xFF2C3440),
           title: const Text(
-            'Editar Perfil',
+            'Edit Profile',
             style: TextStyle(color: Colors.white),
           ),
           content: Column(
@@ -119,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 controller: usernameCtrl,
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
-                  labelText: 'Nombre de usuario',
+                  labelText: 'Username',
                   labelStyle: TextStyle(color: Colors.greenAccent),
                 ),
               ),
@@ -129,7 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: const TextStyle(color: Colors.white),
                 maxLines: 3,
                 decoration: const InputDecoration(
-                  labelText: 'Biografía',
+                  labelText: 'Biography',
                   labelStyle: TextStyle(color: Colors.greenAccent),
                 ),
               ),
@@ -138,10 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(color: Colors.grey),
-              ),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -158,17 +155,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _loadProfileData();
                 } catch (e) {
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error al guardar: $e')),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Error saving: $e')));
                   }
                   setState(() => _isLoading = false);
                 }
               },
-              child: const Text(
-                'Guardar',
-                style: TextStyle(color: Colors.black),
-              ),
+              child: const Text('Save', style: TextStyle(color: Colors.black)),
             ),
           ],
         );
@@ -198,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Top 4 Favoritos',
+          'Top 4 Favorites',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -270,7 +264,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               } catch (e) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al guardar favorito: $e')),
+                    SnackBar(content: Text('Error saving favorite: $e')),
                   );
                 }
                 setState(() => _isLoading = false);
@@ -287,7 +281,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Mi Perfil',
+          'My Profile',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF1C2228),
@@ -430,7 +424,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     icon: const Icon(Icons.edit, size: 16),
-                    label: const Text('Editar perfil'),
+                    label: const Text('Edit Profile'),
                     onPressed: _showEditProfileDialog,
                   ),
                 ),
@@ -444,11 +438,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildStatColumn('Juegos', _gamesCount),
+                      _buildStatColumn('Games', _gamesCount),
                       Container(width: 1, height: 40, color: Colors.grey[700]),
-                      _buildStatColumn('Seguidores', _followersCount),
+                      _buildStatColumn('Followers', _followersCount),
                       Container(width: 1, height: 40, color: Colors.grey[700]),
-                      _buildStatColumn('Siguiendo', _followingCount),
+                      _buildStatColumn('Following', _followingCount),
                     ],
                   ),
                 ),
@@ -458,7 +452,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Divider(color: Colors.grey),
                 const SizedBox(height: 8),
 
-                // --- NUEVO BOTÓN PARA EL PAYWALL DE REVENUECAT ---
                 ListTile(
                   leading: const Icon(Icons.star, color: Colors.amberAccent),
                   title: const Text(
@@ -480,14 +473,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
 
-                // -------------------------------------------------
                 ListTile(
                   leading: const Icon(
                     Icons.list_alt,
                     color: Colors.greenAccent,
                   ),
                   title: const Text(
-                    'Mis Listas Personalizadas',
+                    'My Custom Lists',
                     style: TextStyle(color: Colors.white),
                   ),
                   trailing: const Icon(
@@ -507,34 +499,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ListTile(
                   leading: const Icon(Icons.logout, color: Colors.redAccent),
                   title: const Text(
-                    'Cerrar Sesión',
+                    'Log Out',
                     style: TextStyle(color: Colors.redAccent),
                   ),
                   onTap: () async {
-                    final confirmar = await showDialog<bool>(
+                    final confirm = await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
                         backgroundColor: const Color(0xFF2C3440),
                         title: const Text(
-                          'Cerrar Sesión',
+                          'Log Out',
                           style: TextStyle(color: Colors.white),
                         ),
                         content: const Text(
-                          '¿Estás seguro de que quieres salir?',
+                          'Are you sure you want to log out?',
                           style: TextStyle(color: Colors.grey),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
                             child: const Text(
-                              'Cancelar',
+                              'Cancel',
                               style: TextStyle(color: Colors.grey),
                             ),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(context, true),
                             child: const Text(
-                              'Salir',
+                              'Log Out',
                               style: TextStyle(color: Colors.redAccent),
                             ),
                           ),
@@ -542,7 +534,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     );
 
-                    if (confirmar == true) {
+                    if (confirm == true) {
                       await SupabaseService.client.auth.signOut();
                       if (context.mounted) {
                         Navigator.of(context).pushAndRemoveUntil(
@@ -656,7 +648,7 @@ class _FavoriteSearchModalState extends State<_FavoriteSearchModal> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Buscar en IGDB',
+                'Search IGDB',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -669,7 +661,7 @@ class _FavoriteSearchModalState extends State<_FavoriteSearchModal> {
                     foregroundColor: Colors.redAccent,
                   ),
                   icon: const Icon(Icons.delete, size: 18),
-                  label: const Text('Quitar juego'),
+                  label: const Text('Remove Game'),
                   onPressed: () {
                     List<dynamic> updatedFavorites = List.from(
                       widget.currentFavorites,
@@ -687,7 +679,7 @@ class _FavoriteSearchModalState extends State<_FavoriteSearchModal> {
             autofocus: true,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
-              hintText: 'Nombre del juego (ej. Persona 5)...',
+              hintText: 'Game name (e.g. Persona 5)...',
               hintStyle: TextStyle(color: Colors.grey[600]),
               filled: true,
               fillColor: const Color(0xFF2C3440),
@@ -707,7 +699,7 @@ class _FavoriteSearchModalState extends State<_FavoriteSearchModal> {
                 : _games.isEmpty
                 ? Center(
                     child: Text(
-                      'Escribe para buscar...',
+                      'Type to search...',
                       style: TextStyle(color: Colors.grey[500]),
                     ),
                   )

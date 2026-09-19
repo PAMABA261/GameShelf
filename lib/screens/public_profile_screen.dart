@@ -53,7 +53,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen>
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      debugPrint('Error cargando perfil público: $e');
+      debugPrint('Error loading public profile: $e');
     }
   }
 
@@ -78,14 +78,14 @@ class _PublicProfileScreenState extends State<PublicProfileScreen>
   String _getStatusText(String status) {
     switch (status) {
       case 'playing':
-        return 'Jugando';
+        return 'Playing';
       case 'completed':
-        return 'Completado';
+        return 'Completed';
       case 'dropped':
-        return 'Abandonado';
+        return 'Dropped';
       case 'plan_to_play':
       default:
-        return 'Pendiente';
+        return 'Plan to Play';
     }
   }
 
@@ -161,7 +161,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen>
                           minimumSize: const Size(140, 40),
                         ),
                         child: Text(
-                          _isFollowing ? 'Siguiendo' : 'Seguir',
+                          _isFollowing ? 'Following' : 'Follow',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -174,8 +174,8 @@ class _PublicProfileScreenState extends State<PublicProfileScreen>
                   labelColor: Colors.greenAccent,
                   unselectedLabelColor: Colors.grey,
                   tabs: const [
-                    Tab(text: 'Juegos'),
-                    Tab(text: 'Listas'),
+                    Tab(text: 'Games'),
+                    Tab(text: 'Lists'),
                   ],
                 ),
                 Expanded(
@@ -185,7 +185,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen>
                       _userGames.isEmpty
                           ? Center(
                               child: Text(
-                                'Sin juegos.',
+                                'No games.',
                                 style: TextStyle(color: Colors.grey[500]),
                               ),
                             )
@@ -285,7 +285,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen>
                       _userLists.isEmpty
                           ? Center(
                               child: Text(
-                                'Sin listas.',
+                                'No lists.',
                                 style: TextStyle(color: Colors.grey[500]),
                               ),
                             )

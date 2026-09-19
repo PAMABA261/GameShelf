@@ -27,7 +27,7 @@ class _FeedScreenState extends State<FeedScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error cargando feed: $e');
+      debugPrint('Error loading feed: $e');
       setState(() => _isLoading = false);
     }
   }
@@ -35,14 +35,14 @@ class _FeedScreenState extends State<FeedScreen> {
   String _getActionText(String status) {
     switch (status) {
       case 'playing':
-        return 'ha empezado a jugar a';
+        return 'started playing';
       case 'completed':
-        return 'ha completado';
+        return 'completed';
       case 'dropped':
-        return 'ha abandonado';
+        return 'dropped';
       case 'plan_to_play':
       default:
-        return 'ha añadido a pendientes';
+        return 'added to plan to play';
     }
   }
 
@@ -51,7 +51,7 @@ class _FeedScreenState extends State<FeedScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Actividad Reciente',
+          'Recent Activity',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF1C2228),
@@ -72,7 +72,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           height: MediaQuery.of(context).size.height * 0.3,
                         ),
                         Text(
-                          'Tu muro está vacío.\nSigue a otros usuarios en la Comunidad para ver a qué están jugando.',
+                          'Your feed is empty.\nFollow other users in Community to see what they are playing.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.grey[500],
@@ -89,8 +89,8 @@ class _FeedScreenState extends State<FeedScreen> {
                           const Divider(color: Colors.grey),
                       itemBuilder: (context, index) {
                         final item = _feed[index];
-                        final username = item['username'] ?? 'Usuario';
-                        final gameName = item['game_name'] ?? 'un juego';
+                        final username = item['username'] ?? 'User';
+                        final gameName = item['game_name'] ?? 'a game';
                         final coverUrl = item['cover_url'] ?? '';
                         final actionText = _getActionText(item['status']);
 
@@ -147,7 +147,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                         child: Row(
                                           children: [
                                             const Text(
-                                              'Nota: ',
+                                              'Rating: ',
                                               style: TextStyle(
                                                 color: Colors.grey,
                                                 fontSize: 12,

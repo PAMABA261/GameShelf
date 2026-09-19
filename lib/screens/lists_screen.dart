@@ -28,7 +28,7 @@ class _ListsScreenState extends State<ListsScreen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      debugPrint('Error cargando listas: $e');
+      debugPrint('Error loading lists: $e');
     }
   }
 
@@ -37,7 +37,7 @@ class _ListsScreenState extends State<ListsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Mis Listas',
+          'My Lists',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF1C2228),
@@ -49,7 +49,7 @@ class _ListsScreenState extends State<ListsScreen> {
           : _userLists.isEmpty
           ? Center(
               child: Text(
-                'No tienes listas creadas todavía.\n¡Añade juegos a una lista desde sus detalles!',
+                'You have no lists created yet.\nAdd games to a list from their details page!',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[500], fontSize: 16),
               ),
@@ -68,7 +68,7 @@ class _ListsScreenState extends State<ListsScreen> {
                   child: ListTile(
                     contentPadding: const EdgeInsets.all(16),
                     title: Text(
-                      list['title'] ?? 'Sin título',
+                      list['title'] ?? 'Untitled',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -115,7 +115,6 @@ class _ListsScreenState extends State<ListsScreen> {
   }
 }
 
-// --- PANTALLA DE DETALLE DE UNA LISTA (MUESTRA SUS JUEGOS) ---
 class ListDetailScreen extends StatefulWidget {
   final String listId;
   final String listTitle;
@@ -150,7 +149,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      debugPrint('Error cargando juegos de la lista: $e');
+      debugPrint('Error loading games for list: $e');
     }
   }
 
@@ -171,7 +170,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
           : _listGames.isEmpty
           ? Center(
               child: Text(
-                'Esta lista está vacía.',
+                'This list is empty.',
                 style: TextStyle(color: Colors.grey[500], fontSize: 16),
               ),
             )
@@ -187,7 +186,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
               itemBuilder: (context, index) {
                 final item = _listGames[index];
                 final coverUrl = item['cover_url'] ?? '';
-                final gameName = item['game_name'] ?? 'Juego';
+                final gameName = item['game_name'] ?? 'Game';
 
                 return Container(
                   decoration: BoxDecoration(

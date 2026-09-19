@@ -29,7 +29,7 @@ class RevenueCatService {
       final customerInfo = await Purchases.getCustomerInfo();
       return customerInfo.entitlements.all[entitlementId]?.isActive ?? false;
     } catch (e) {
-      debugPrint('Error comprobando suscripción: $e');
+      debugPrint('Error checking subscription: $e');
       return false;
     }
   }
@@ -43,7 +43,7 @@ class RevenueCatService {
       }
       return [];
     } catch (e) {
-      debugPrint('Error obteniendo paquetes: $e');
+      debugPrint('Error fetching packages: $e');
       return [];
     }
   }
@@ -54,7 +54,7 @@ class RevenueCatService {
       return result.customerInfo.entitlements.all[entitlementId]?.isActive ??
           false;
     } catch (e) {
-      debugPrint('Error en la compra: $e');
+      debugPrint('Error purchasing: $e');
       return false;
     }
   }
@@ -64,7 +64,7 @@ class RevenueCatService {
       final customerInfo = await Purchases.restorePurchases();
       return customerInfo.entitlements.all[entitlementId]?.isActive ?? false;
     } catch (e) {
-      debugPrint('Error restaurando compras: $e');
+      debugPrint('Error restoring purchases: $e');
       return false;
     }
   }

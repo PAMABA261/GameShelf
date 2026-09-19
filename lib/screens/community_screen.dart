@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../services/supabase_service.dart';
 import 'public_profile_screen.dart';
 import 'post_detail_screen.dart';
+import 'create_post_screen.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -25,7 +26,6 @@ class _CommunityScreenState extends State<CommunityScreen>
   List<dynamic> _posts = [];
   bool _isLoadingPosts = true;
 
-  // Control del menú flotante en abanico
   bool _isFabOpen = false;
 
   @override
@@ -67,7 +67,7 @@ class _CommunityScreenState extends State<CommunityScreen>
           });
         } catch (e) {
           setState(() => _isLoadingUsers = false);
-          debugPrint('Error buscando usuarios: $e');
+          debugPrint('Error searching users: $e');
         }
       } else {
         setState(() {
@@ -87,13 +87,12 @@ class _CommunityScreenState extends State<CommunityScreen>
         _isLoadingPosts = false;
       });
     } catch (e) {
-      debugPrint('Error cargando posts: $e');
+      debugPrint('Error loading posts: $e');
       setState(() => _isLoadingPosts = false);
     }
   }
 
   void _showCreateModal({required bool isPoll}) {
-    // Cerramos el menú flotante primero
     setState(() => _isFabOpen = false);
 
     final titleController = TextEditingController();
@@ -131,7 +130,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                 );
                 if (url != null) {
                   final currentText = contentController.text;
-                  contentController.text = '$currentText\n![imagen]($url)\n';
+                  contentController.text = '$currentText\n![image]($url)\n';
                 }
               } catch (e) {
                 if (context.mounted) {
@@ -160,9 +159,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          isPoll
-                              ? 'Nueva Encuesta'
-                              : 'Nueva Publicación o Guía',
+                          isPoll ? 'New Poll' : 'New Post or Guide',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -185,7 +182,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                                     color: Colors.greenAccent,
                                   ),
                             label: const Text(
-                              'Añadir foto',
+                              'Add Photo',
                               style: TextStyle(color: Colors.greenAccent),
                             ),
                           ),
@@ -197,8 +194,8 @@ class _CommunityScreenState extends State<CommunityScreen>
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         labelText: isPoll
-                            ? 'Pregunta de la encuesta'
-                            : 'Título de la guía o reseña',
+                            ? 'Poll Question'
+                            : 'Guide or Review Title',
                         labelStyle: TextStyle(
                           color: isPoll
                               ? Colors.amberAccent
@@ -219,7 +216,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                         style: const TextStyle(color: Colors.white),
                         maxLines: 8,
                         decoration: InputDecoration(
-                          labelText: 'Contenido (Soporta Markdown)',
+                          labelText: 'Content (Supports Markdown)',
                           labelStyle: TextStyle(color: Colors.grey[400]),
                           filled: true,
                           fillColor: const Color(0xFF2C3440),
@@ -231,7 +228,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                     else ...[
                       const SizedBox(height: 4),
                       const Text(
-                        'Opciones de respuesta:',
+                        'Poll Options:',
                         style: TextStyle(color: Colors.grey, fontSize: 13),
                       ),
                       const SizedBox(height: 8),
@@ -245,7 +242,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                                   controller: optionControllers[index],
                                   style: const TextStyle(color: Colors.white),
                                   decoration: InputDecoration(
-                                    hintText: 'Opción ${index + 1}',
+                                    hintText: 'Option ${index + 1}',
                                     hintStyle: TextStyle(
                                       color: Colors.grey[600],
                                     ),
@@ -291,7 +288,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                             size: 18,
                           ),
                           label: const Text(
-                            'Añadir otra opción',
+                            'Add Another Option',
                             style: TextStyle(color: Colors.amberAccent),
                           ),
                         ),
@@ -314,7 +311,9 @@ class _CommunityScreenState extends State<CommunityScreen>
                               if (title.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Rellena el campo principal'),
+                                    content: Text(
+                                      'Please fill in the main field',
+                                    ),
                                   ),
                                 );
                                 return;
@@ -332,7 +331,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
-                                          'Introduce al menos 2 opciones válidas',
+                                          'Please enter at least 2 valid options',
                                         ),
                                       ),
                                     );
@@ -350,7 +349,9 @@ class _CommunityScreenState extends State<CommunityScreen>
                                   if (content.isEmpty) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text('Rellena el contenido'),
+                                        content: Text(
+                                          'Please enter the content',
+                                        ),
                                       ),
                                     );
                                     setModalState(() => isSubmitting = false);
@@ -383,7 +384,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Text('Publicar'),
+                          : const Text('Publish'),
                     ),
                   ],
                 ),
@@ -405,7 +406,7 @@ class _CommunityScreenState extends State<CommunityScreen>
             onChanged: _onSearchChanged,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
-              hintText: 'Buscar usuarios...',
+              hintText: 'Search users...',
               hintStyle: TextStyle(color: Colors.grey[600]),
               filled: true,
               fillColor: const Color(0xFF2C3440),
@@ -429,8 +430,8 @@ class _CommunityScreenState extends State<CommunityScreen>
                 ? Center(
                     child: Text(
                       _searchController.text.isEmpty
-                          ? 'Busca a tus amigos por su nombre.'
-                          : 'No se encontraron usuarios.',
+                          ? 'Search for your friends by username.'
+                          : 'No users found.',
                       style: TextStyle(color: Colors.grey[500], fontSize: 16),
                     ),
                   )
@@ -454,7 +455,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                               : null,
                         ),
                         title: Text(
-                          '@${user['username'] ?? 'Usuario'}',
+                          '@${user['username'] ?? 'User'}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -494,7 +495,7 @@ class _CommunityScreenState extends State<CommunityScreen>
     if (_posts.isEmpty) {
       return Center(
         child: Text(
-          'No hay publicaciones aún.\n¡Anímate a escribir la primera!',
+          'No posts yet.\nBe the first one to write something!',
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.grey[500], fontSize: 16),
         ),
@@ -511,9 +512,7 @@ class _CommunityScreenState extends State<CommunityScreen>
         itemBuilder: (context, index) {
           final post = _posts[index];
           final profile = post['profiles'];
-          final username = profile != null
-              ? profile['username']
-              : 'Desconocido';
+          final username = profile != null ? profile['username'] : 'Unknown';
           final bool isPoll = post['is_poll'] == true;
 
           return Card(
@@ -556,7 +555,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: const Text(
-                            'Encuesta',
+                            'Poll',
                             style: TextStyle(
                               fontSize: 10,
                               color: Colors.amberAccent,
@@ -575,7 +574,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    post['title'] ?? 'Sin título',
+                    post['title'] ?? 'Untitled',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -670,7 +669,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                             }
                           },
                           child: const Text(
-                            'Leer más',
+                            'Read More',
                             style: TextStyle(color: Colors.greenAccent),
                           ),
                         ),
@@ -694,7 +693,7 @@ class _CommunityScreenState extends State<CommunityScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Comunidad',
+          'Community',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF1C2228),
@@ -704,8 +703,8 @@ class _CommunityScreenState extends State<CommunityScreen>
           labelColor: Colors.greenAccent,
           unselectedLabelColor: Colors.grey,
           tabs: const [
-            Tab(text: 'Usuarios'),
-            Tab(text: 'Publicaciones'),
+            Tab(text: 'Users'),
+            Tab(text: 'Posts'),
           ],
         ),
       ),
@@ -735,7 +734,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                     onPressed: () => _showCreateModal(isPoll: true),
                     icon: const Icon(Icons.poll),
                     label: const Text(
-                      'Crear Encuesta',
+                      'Create Poll',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -744,10 +743,23 @@ class _CommunityScreenState extends State<CommunityScreen>
                     heroTag: 'post_fab',
                     backgroundColor: Colors.greenAccent,
                     foregroundColor: Colors.black,
-                    onPressed: () => _showCreateModal(isPoll: false),
+                    onPressed: () async {
+                      setState(() => _isFabOpen = false);
+
+                      final bool? result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CreatePostScreen(),
+                        ),
+                      );
+
+                      if (result == true) {
+                        _loadPosts();
+                      }
+                    },
                     icon: const Icon(Icons.edit_note),
                     label: const Text(
-                      'Escribir Guía / Post',
+                      'Write Guide / Post',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -813,7 +825,7 @@ class _PollWidgetState extends State<_PollWidget> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error al emitir voto: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error casting vote: $e')));
       }
     } finally {
       if (mounted) setState(() => _isVoting = false);

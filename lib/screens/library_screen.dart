@@ -76,7 +76,7 @@ class _LibraryScreenState extends State<LibraryScreen>
     if (item['available_platforms'] != null) {
       modalPlatforms = List<String>.from(item['available_platforms']);
     } else {
-      modalPlatforms = ['PC', 'Nintendo Switch', 'Emulador', 'Otro'];
+      modalPlatforms = ['PC', 'Nintendo Switch', 'Emulator', 'Other'];
     }
 
     if (currentPlatform != null &&
@@ -112,7 +112,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item['game_name'] ?? 'Editar juego',
+                      item['game_name'] ?? 'Edit game',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -121,7 +121,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'Estado',
+                      'Status',
                       style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                     const SizedBox(height: 8),
@@ -140,19 +140,19 @@ class _LibraryScreenState extends State<LibraryScreen>
                       items: const [
                         DropdownMenuItem(
                           value: 'playing',
-                          child: Text('Jugando'),
+                          child: Text('Playing'),
                         ),
                         DropdownMenuItem(
                           value: 'plan_to_play',
-                          child: Text('Pendiente'),
+                          child: Text('Plan to Play'),
                         ),
                         DropdownMenuItem(
                           value: 'completed',
-                          child: Text('Completado'),
+                          child: Text('Completed'),
                         ),
                         DropdownMenuItem(
                           value: 'dropped',
-                          child: Text('Abandonado'),
+                          child: Text('Dropped'),
                         ),
                       ],
                       onChanged: (val) {
@@ -163,7 +163,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'Puntuación',
+                      'Rating',
                       style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                     Row(
@@ -185,7 +185,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'Reseña',
+                      'Review',
                       style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                     const SizedBox(height: 8),
@@ -194,7 +194,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                       style: const TextStyle(color: Colors.white),
                       maxLines: 3,
                       decoration: InputDecoration(
-                        hintText: 'Actualiza tu reseña...',
+                        hintText: 'Update your review...',
                         hintStyle: TextStyle(color: Colors.grey[600]),
                         filled: true,
                         fillColor: const Color(0xFF2C3440),
@@ -206,7 +206,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'Plataforma',
+                      'Platform',
                       style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                     const SizedBox(height: 8),
@@ -219,7 +219,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                       dropdownColor: const Color(0xFF2C3440),
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: 'Selecciona plataforma',
+                        hintText: 'Select platform',
                         hintStyle: TextStyle(color: Colors.grey[600]),
                         filled: true,
                         fillColor: const Color(0xFF2C3440),
@@ -250,7 +250,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                             ),
                             icon: const Icon(Icons.delete, color: Colors.white),
                             label: const Text(
-                              'Eliminar',
+                              'Delete',
                               style: TextStyle(color: Colors.white),
                             ),
                             onPressed: () async {
@@ -260,9 +260,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                               _loadLibrary();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text(
-                                    'Juego eliminado de la biblioteca',
-                                  ),
+                                  content: Text('Game removed from library'),
                                 ),
                               );
                             },
@@ -276,7 +274,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                             ),
                             icon: const Icon(Icons.save, color: Colors.white),
                             label: const Text(
-                              'Guardar',
+                              'Save',
                               style: TextStyle(color: Colors.white),
                             ),
                             onPressed: () async {
@@ -296,7 +294,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                               _loadLibrary();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Juego actualizado con éxito'),
+                                  content: Text('Game successfully updated'),
                                 ),
                               );
                             },
@@ -317,14 +315,14 @@ class _LibraryScreenState extends State<LibraryScreen>
   String _getStatusText(String status) {
     switch (status) {
       case 'playing':
-        return 'Jugando';
+        return 'Playing';
       case 'completed':
-        return 'Completado';
+        return 'Completed';
       case 'dropped':
-        return 'Abandonado';
+        return 'Dropped';
       case 'plan_to_play':
       default:
-        return 'Pendiente';
+        return 'Plan to Play';
     }
   }
 
@@ -346,7 +344,7 @@ class _LibraryScreenState extends State<LibraryScreen>
     if (gamesList.isEmpty) {
       return Center(
         child: Text(
-          'No hay juegos en esta sección.',
+          'No games in this section.',
           style: TextStyle(color: Colors.grey[500], fontSize: 16),
         ),
       );
@@ -364,7 +362,7 @@ class _LibraryScreenState extends State<LibraryScreen>
       itemBuilder: (context, index) {
         final item = gamesList[index];
         final coverUrl = item['cover_url'] ?? '';
-        final gameName = item['game_name'] ?? 'Juego';
+        final gameName = item['game_name'] ?? 'Game';
 
         final statusText = _getStatusText(item['status']);
         final statusColor = _getStatusColor(item['status']);
@@ -506,14 +504,14 @@ class _LibraryScreenState extends State<LibraryScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Mi Biblioteca',
+          'My Library',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF1C2228),
         actions: [
           IconButton(
             icon: const Icon(Icons.list_alt, color: Colors.greenAccent),
-            tooltip: 'Mis Listas',
+            tooltip: 'My Lists',
             onPressed: () {
               Navigator.push(
                 context,
@@ -523,7 +521,7 @@ class _LibraryScreenState extends State<LibraryScreen>
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.sort, color: Colors.greenAccent),
-            tooltip: 'Ordenar',
+            tooltip: 'Sort',
             onSelected: (value) {
               setState(() {
                 _sortMethod = value;
@@ -532,15 +530,15 @@ class _LibraryScreenState extends State<LibraryScreen>
             itemBuilder: (context) => [
               const PopupMenuItem(
                 value: 'date_desc',
-                child: Text('Más recientes'),
+                child: Text('Most Recent'),
               ),
               const PopupMenuItem(
                 value: 'rating_desc',
-                child: Text('Mejor puntuación'),
+                child: Text('Highest Rated'),
               ),
               const PopupMenuItem(
                 value: 'name_asc',
-                child: Text('Alfabético (A-Z)'),
+                child: Text('Alphabetical (A-Z)'),
               ),
             ],
           ),
@@ -552,11 +550,11 @@ class _LibraryScreenState extends State<LibraryScreen>
           labelColor: Colors.greenAccent,
           unselectedLabelColor: Colors.grey,
           tabs: const [
-            Tab(text: 'Todos'),
-            Tab(text: 'Jugando'),
-            Tab(text: 'Pendientes'),
-            Tab(text: 'Completados'),
-            Tab(text: 'Abandonados'),
+            Tab(text: 'All'),
+            Tab(text: 'Playing'),
+            Tab(text: 'Plan to Play'),
+            Tab(text: 'Completed'),
+            Tab(text: 'Dropped'),
           ],
         ),
       ),

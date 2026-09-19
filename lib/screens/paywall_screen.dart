@@ -38,12 +38,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('¡Bienvenido a Backloggd PRO!')),
+        const SnackBar(content: Text('Welcome to Backloggd PRO!')),
       );
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudo completar la compra.')),
+        const SnackBar(content: Text('Could not complete the purchase.')),
       );
     }
   }
@@ -56,14 +56,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Suscripción restaurada correctamente.')),
+        const SnackBar(content: Text('Subscription successfully restored.')),
       );
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No se encontraron compras previas activas.'),
-        ),
+        const SnackBar(content: Text('No active prior purchases found.')),
       );
     }
   }
@@ -78,10 +76,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
         actions: [
           TextButton(
             onPressed: _isPurchasing ? null : _handleRestore,
-            child: const Text(
-              'Restaurar',
-              style: TextStyle(color: Colors.grey),
-            ),
+            child: const Text('Restore', style: TextStyle(color: Colors.grey)),
           ),
         ],
       ),
@@ -101,7 +96,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'Pásate a PRO',
+                    'Upgrade to PRO',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -110,7 +105,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Crea listas ilimitadas, lanza encuestas comunitarias y apoya el desarrollo de la plataforma.',
+                    'Create unlimited lists, launch community polls, and support platform development.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.grey[400],
@@ -127,7 +122,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Text(
-                        'No hay paquetes configurados todavía en RevenueCat Dashboard.',
+                        'No packages configured yet in RevenueCat Dashboard.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey),
                       ),
@@ -171,7 +166,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     }),
                   const SizedBox(height: 12),
                   Text(
-                    'Renovación automática. Cancela en cualquier momento desde la tienda.',
+                    'Auto-renewable. Cancel anytime from the store.',
                     style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                   ),
                 ],

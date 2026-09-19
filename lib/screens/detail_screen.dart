@@ -32,7 +32,7 @@ class _DetailScreenState extends State<DetailScreen> {
       extracted = platformsList.map((p) => p['name'] as String).toList();
     }
 
-    extracted.addAll(['Emulador']);
+    extracted.addAll(['Emulator']);
 
     return extracted.toSet().toList();
   }
@@ -54,27 +54,24 @@ class _DetailScreenState extends State<DetailScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('¡Guardado en tu biblioteca con éxito!'),
-          ),
+          const SnackBar(content: Text('Successfully saved to your library!')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error al guardar: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error saving: $e')));
       }
     }
   }
 
-  // --- MODAL PARA AÑADIR A LISTAS PERSONALIZADAS ---
   void _showAddToListModal(BuildContext context) async {
     List<dynamic> lists = [];
     try {
       lists = await SupabaseService.fetchUserLists();
     } catch (e) {
-      debugPrint('Error cargando listas: $e');
+      debugPrint('Error loading lists: $e');
     }
 
     if (!context.mounted) return;
@@ -101,7 +98,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Añadir a una lista',
+                    'Add to a List',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -115,7 +112,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       padding: EdgeInsets.symmetric(vertical: 20.0),
                       child: Center(
                         child: Text(
-                          'No tienes listas creadas todavía.',
+                          'You have no lists created yet.',
                           style: TextStyle(color: Colors.grey),
                         ),
                       ),
@@ -161,7 +158,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      '¡Añadido a "${list['title']}"!',
+                                      'Added to "${list['title']}"!',
                                     ),
                                   ),
                                 );
@@ -170,7 +167,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
-                                      'El juego ya está en esta lista.',
+                                      'Game is already in this list.',
                                     ),
                                   ),
                                 );
@@ -191,7 +188,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       minimumSize: const Size(double.infinity, 45),
                     ),
                     icon: const Icon(Icons.create_new_folder),
-                    label: const Text('Crear nueva lista'),
+                    label: const Text('Create New List'),
                     onPressed: () {
                       Navigator.pop(context);
                       _showCreateListModal(context);
@@ -230,7 +227,7 @@ class _DetailScreenState extends State<DetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Nueva Lista Personalizada',
+                'New Custom List',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -242,7 +239,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 controller: titleController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  labelText: 'Título (ej. Top RPGs)',
+                  labelText: 'Title (e.g. Top RPGs)',
                   labelStyle: const TextStyle(color: Colors.greenAccent),
                   filled: true,
                   fillColor: const Color(0xFF2C3440),
@@ -257,7 +254,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 style: const TextStyle(color: Colors.white),
                 maxLines: 2,
                 decoration: InputDecoration(
-                  labelText: 'Descripción (opcional)',
+                  labelText: 'Description (optional)',
                   labelStyle: TextStyle(color: Colors.grey[400]),
                   filled: true,
                   fillColor: const Color(0xFF2C3440),
@@ -284,17 +281,19 @@ class _DetailScreenState extends State<DetailScreen> {
                     if (!context.mounted) return;
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('¡Lista creada con éxito!')),
+                      const SnackBar(
+                        content: Text('List successfully created!'),
+                      ),
                     );
                     _showAddToListModal(context);
                   } catch (e) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error al crear lista: $e')),
+                      SnackBar(content: Text('Error creating list: $e')),
                     );
                   }
                 },
-                child: const Text('Crear y continuar'),
+                child: const Text('Create and Continue'),
               ),
             ],
           ),
@@ -302,11 +301,10 @@ class _DetailScreenState extends State<DetailScreen> {
       },
     );
   }
-  // ----------------------------------------------------
 
   String _getReleaseYear() {
     final timestamp = widget.game['first_release_date'];
-    if (timestamp == null) return 'Desconocido';
+    if (timestamp == null) return 'Unknown';
     final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
     return date.year.toString();
   }
@@ -314,7 +312,7 @@ class _DetailScreenState extends State<DetailScreen> {
   String _getGenres() {
     final genresList = widget.game['genres'];
     if (genresList == null || genresList is! List || genresList.isEmpty) {
-      return 'No especificado';
+      return 'Not specified';
     }
     return genresList.map((g) => g['name'] as String).join(', ');
   }
@@ -324,16 +322,15 @@ class _DetailScreenState extends State<DetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.game['name'] ?? 'Detalle',
+          widget.game['name'] ?? 'Details',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
         backgroundColor: const Color(0xFF1C2228),
         actions: [
-          // Botón para desplegar el modal de listas
           IconButton(
             icon: const Icon(Icons.playlist_add, color: Colors.greenAccent),
-            tooltip: 'Añadir a lista',
+            tooltip: 'Add to list',
             onPressed: () => _showAddToListModal(context),
           ),
         ],
@@ -358,7 +355,7 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              widget.game['name'] ?? 'Sin título',
+              widget.game['name'] ?? 'Untitled',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -379,7 +376,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Lanzamiento: ${_getReleaseYear()}',
+                      'Release: ${_getReleaseYear()}',
                       style: TextStyle(color: Colors.grey[400], fontSize: 13),
                     ),
                   ],
@@ -396,7 +393,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        'Géneros: ${_getGenres()}',
+                        'Genres: ${_getGenres()}',
                         style: TextStyle(color: Colors.grey[400], fontSize: 13),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -409,7 +406,7 @@ class _DetailScreenState extends State<DetailScreen> {
             const Divider(height: 30, color: Colors.grey),
 
             const Text(
-              'Tu Puntuación',
+              'Your Rating',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -439,7 +436,7 @@ class _DetailScreenState extends State<DetailScreen> {
               style: const TextStyle(color: Colors.white),
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'Escribe tu reseña sobre el juego...',
+                hintText: 'Write your review about this game...',
                 hintStyle: TextStyle(color: Colors.grey[600]),
                 filled: true,
                 fillColor: const Color(0xFF2C3440),
@@ -454,7 +451,7 @@ class _DetailScreenState extends State<DetailScreen> {
             DropdownButtonFormField<String>(
               initialValue: _selectedPlatform,
               decoration: InputDecoration(
-                labelText: 'Plataforma / Emulador',
+                labelText: 'Platform / Emulator',
                 labelStyle: const TextStyle(color: Colors.greenAccent),
                 filled: true,
                 fillColor: const Color(0xFF2C3440),
@@ -487,7 +484,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   ElevatedButton.icon(
                     onPressed: () => _saveGame('playing'),
                     icon: const Icon(Icons.videogame_asset),
-                    label: const Text('Jugando'),
+                    label: const Text('Playing'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange[700],
                       foregroundColor: Colors.white,
@@ -496,7 +493,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   ElevatedButton.icon(
                     onPressed: () => _saveGame('plan_to_play'),
                     icon: const Icon(Icons.bookmark_add),
-                    label: const Text('Pendiente'),
+                    label: const Text('Plan to Play'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueGrey,
                       foregroundColor: Colors.white,
@@ -505,7 +502,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   ElevatedButton.icon(
                     onPressed: () => _saveGame('completed'),
                     icon: const Icon(Icons.check_circle),
-                    label: const Text('Completado'),
+                    label: const Text('Completed'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green[800],
                       foregroundColor: Colors.white,
@@ -514,7 +511,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   ElevatedButton.icon(
                     onPressed: () => _saveGame('dropped'),
                     icon: const Icon(Icons.cancel),
-                    label: const Text('Abandonado'),
+                    label: const Text('Dropped'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red[800],
                       foregroundColor: Colors.white,
@@ -525,7 +522,7 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Sinopsis',
+              'Synopsis',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -535,7 +532,7 @@ class _DetailScreenState extends State<DetailScreen> {
             const SizedBox(height: 8),
             Text(
               widget.game['summary'] ??
-                  'No hay descripción disponible para este título.',
+                  'No description available for this title.',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[300],

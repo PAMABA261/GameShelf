@@ -57,7 +57,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Error cargando likes: $e');
+      debugPrint('Error loading likes: $e');
       if (mounted) setState(() => _isLoadingLikes = false);
     }
   }
@@ -78,14 +78,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           _isLiked = wasLiked;
           _likeCount += wasLiked ? 1 : -1;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al procesar el like: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error processing like: $e')));
       }
     }
   }
 
-  // --- MÉTODOS DE COMENTARIOS ---
   Future<void> _loadCommentsData() async {
     try {
       final postId = _currentPost['id'].toString();
@@ -97,7 +96,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Error cargando comentarios: $e');
+      debugPrint('Error loading comments: $e');
       if (mounted) setState(() => _isLoadingComments = false);
     }
   }
@@ -116,7 +115,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error al comentar: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error commenting: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSubmittingComment = false);
@@ -124,27 +123,27 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Future<void> _handleDeleteComment(String commentId) async {
-    final confirmar = await showDialog<bool>(
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2C3440),
         title: const Text(
-          'Borrar comentario',
+          'Delete Comment',
           style: TextStyle(color: Colors.white),
         ),
         content: const Text(
-          '¿Quieres borrar este comentario?',
+          'Do you want to delete this comment?',
           style: TextStyle(color: Colors.grey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text(
-              'Borrar',
+              'Delete',
               style: TextStyle(color: Colors.redAccent),
             ),
           ),
@@ -152,20 +151,20 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
     );
 
-    if (confirmar == true) {
+    if (confirm == true) {
       try {
         await SupabaseService.deleteComment(commentId);
         await _loadCommentsData();
         if (mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(const SnackBar(content: Text('Comentario borrado')));
+          ).showSnackBar(const SnackBar(content: Text('Comment deleted')));
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('Error al borrar: $e')));
+          ).showSnackBar(SnackBar(content: Text('Error deleting: $e')));
         }
       }
     }
@@ -202,13 +201,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 );
                 if (url != null) {
                   final currentText = contentController.text;
-                  contentController.text = '$currentText\n![imagen]($url)\n';
+                  contentController.text = '$currentText\n![image]($url)\n';
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text('Error al subir: $e')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error uploading: $e')),
+                  );
                 }
               } finally {
                 setModalState(() => _isUploadingImage = false);
@@ -230,7 +229,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Editar Publicación',
+                        'Edit Post',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -252,7 +251,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                 color: Colors.greenAccent,
                               ),
                         label: const Text(
-                          'Añadir foto',
+                          'Add Photo',
                           style: TextStyle(color: Colors.greenAccent),
                         ),
                       ),
@@ -263,7 +262,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     controller: titleController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      labelText: 'Título',
+                      labelText: 'Title',
                       labelStyle: const TextStyle(color: Colors.blueAccent),
                       filled: true,
                       fillColor: const Color(0xFF2C3440),
@@ -278,7 +277,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     style: const TextStyle(color: Colors.white),
                     maxLines: 8,
                     decoration: InputDecoration(
-                      labelText: 'Contenido (Soporta Markdown)',
+                      labelText: 'Content (Supports Markdown)',
                       labelStyle: TextStyle(color: Colors.grey[400]),
                       filled: true,
                       fillColor: const Color(0xFF2C3440),
@@ -303,7 +302,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             if (newTitle.isEmpty || newContent.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Rellena título y contenido'),
+                                  content: Text(
+                                    'Fill in both title and content',
+                                  ),
                                 ),
                               );
                               return;
@@ -326,16 +327,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               if (!context.mounted) return;
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Publicación editada'),
-                                ),
+                                const SnackBar(content: Text('Post updated')),
                               );
                             } catch (e) {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Error al editar: $e'),
-                                  ),
+                                  SnackBar(content: Text('Error updating: $e')),
                                 );
                               }
                             } finally {
@@ -351,7 +348,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               strokeWidth: 2,
                             ),
                           )
-                        : const Text('Guardar cambios'),
+                        : const Text('Save Changes'),
                   ),
                 ],
               ),
@@ -365,7 +362,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final profile = _currentPost['profiles'];
-    final username = profile != null ? profile['username'] : 'Desconocido';
+    final username = profile != null ? profile['username'] : 'Unknown';
     final date = _currentPost['created_at'] != null
         ? _currentPost['created_at'].toString().substring(0, 10)
         : '';
@@ -387,7 +384,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             onPressed: () => Navigator.pop(context, _hasChanges),
           ),
           title: const Text(
-            'Publicación',
+            'Post',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           backgroundColor: const Color(0xFF1C2228),
@@ -395,38 +392,38 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             if (isOwner)
               IconButton(
                 icon: const Icon(Icons.edit, color: Colors.blueAccent),
-                tooltip: 'Editar',
+                tooltip: 'Edit',
                 onPressed: _showEditModal,
               ),
             if (isOwner)
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.redAccent),
-                tooltip: 'Borrar',
+                tooltip: 'Delete',
                 onPressed: () async {
-                  final confirmar = await showDialog<bool>(
+                  final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
                       backgroundColor: const Color(0xFF2C3440),
                       title: const Text(
-                        'Borrar publicación',
+                        'Delete Post',
                         style: TextStyle(color: Colors.white),
                       ),
                       content: const Text(
-                        '¿Eliminar esta publicación para siempre?',
+                        'Do you want to delete this post forever?',
                         style: TextStyle(color: Colors.grey),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
                           child: const Text(
-                            'Cancelar',
+                            'Cancel',
                             style: TextStyle(color: Colors.grey),
                           ),
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
                           child: const Text(
-                            'Borrar',
+                            'Delete',
                             style: TextStyle(color: Colors.redAccent),
                           ),
                         ),
@@ -434,7 +431,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     ),
                   );
 
-                  if (confirmar == true) {
+                  if (confirm == true) {
                     try {
                       await SupabaseService.deletePost(
                         _currentPost['id'].toString(),
@@ -442,7 +439,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       if (context.mounted) {
                         Navigator.pop(context, true);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Publicación borrada')),
+                          const SnackBar(content: Text('Post deleted')),
                         );
                       }
                     } catch (e) {
@@ -502,7 +499,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               const SizedBox(height: 24),
 
               Text(
-                _currentPost['title'] ?? 'Sin título',
+                _currentPost['title'] ?? 'Untitled',
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
@@ -575,7 +572,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               const Divider(color: Colors.grey, height: 40),
 
               const Text(
-                'Comentarios',
+                'Comments',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -590,7 +587,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       controller: _commentController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: 'Escribe un comentario...',
+                        hintText: 'Write a comment...',
                         hintStyle: TextStyle(color: Colors.grey[600]),
                         filled: true,
                         fillColor: const Color(0xFF2C3440),
@@ -637,7 +634,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   : _comments.isEmpty
                   ? Center(
                       child: Text(
-                        'Aún no hay comentarios.\n¡Sé el primero en opinar!',
+                        'No comments yet.\nBe the first to share your thoughts!',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey[500]),
                       ),
@@ -653,7 +650,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         final commentProfile = comment['profiles'];
                         final commentUsername = commentProfile != null
                             ? commentProfile['username']
-                            : 'Usuario';
+                            : 'User';
                         final isCommentOwner =
                             currentUserId == comment['user_id'];
 

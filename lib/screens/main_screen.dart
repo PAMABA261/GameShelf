@@ -55,18 +55,18 @@ class _MainScreenState extends State<MainScreen> {
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.dynamic_feed),
-              label: 'Muro',
+              label: 'Feed',
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Buscar'),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
             BottomNavigationBarItem(
               icon: Icon(Icons.people),
-              label: 'Comunidad',
+              label: 'Community',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.bookmark),
-              label: 'Biblioteca',
+              label: 'Library',
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
         ),
       ),

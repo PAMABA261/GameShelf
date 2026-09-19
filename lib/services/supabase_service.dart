@@ -22,7 +22,7 @@ class SupabaseService {
       );
       return true;
     } catch (e) {
-      debugPrint('Error de autenticación: $e');
+      debugPrint('Authentication error: $e');
       return false;
     }
   }
@@ -38,7 +38,7 @@ class SupabaseService {
     List<String>? availablePlatforms,
   }) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No se pudo autenticar el usuario.');
+    if (!authenticated) throw Exception('Could not authenticate user.');
 
     final userId = client.auth.currentUser!.id;
 
@@ -78,7 +78,7 @@ class SupabaseService {
     String? platform,
   }) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No se pudo autenticar el usuario.');
+    if (!authenticated) throw Exception('Could not authenticate user.');
 
     final userId = client.auth.currentUser!.id;
 
@@ -96,7 +96,7 @@ class SupabaseService {
 
   static Future<void> deleteGame(int gameId) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No se pudo autenticar el usuario.');
+    if (!authenticated) throw Exception('Could not authenticate user.');
 
     final userId = client.auth.currentUser!.id;
 
@@ -122,7 +122,7 @@ class SupabaseService {
 
   static Future<void> createList(String title, String description) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No se pudo autenticar el usuario.');
+    if (!authenticated) throw Exception('Could not authenticate user.');
 
     final userId = client.auth.currentUser!.id;
     await client.from('custom_lists').insert({
@@ -139,7 +139,7 @@ class SupabaseService {
     required String coverUrl,
   }) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     try {
       await client.from('list_games').insert({
@@ -149,7 +149,7 @@ class SupabaseService {
         'cover_url': coverUrl,
       });
     } catch (e) {
-      throw Exception('El juego ya está en esta lista o hubo un error.');
+      throw Exception('Game is already in this list or an error occurred.');
     }
   }
 
@@ -207,7 +207,7 @@ class SupabaseService {
 
   static Future<void> followUser(String targetUserId) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     final myId = client.auth.currentUser!.id;
     await client.from('followers').insert({
@@ -218,7 +218,7 @@ class SupabaseService {
 
   static Future<void> unfollowUser(String targetUserId) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     final myId = client.auth.currentUser!.id;
     await client
@@ -322,7 +322,7 @@ class SupabaseService {
 
       return publicUrl;
     } catch (e) {
-      debugPrint('Error al subir imagen: $e');
+      debugPrint('Error uploading image: $e');
       rethrow;
     }
   }
@@ -334,7 +334,7 @@ class SupabaseService {
     String? gameName,
   }) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     final userId = client.auth.currentUser!.id;
 
@@ -361,7 +361,7 @@ class SupabaseService {
 
   static Future<void> deletePost(String postId) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     final userId = client.auth.currentUser!.id;
 
@@ -374,7 +374,7 @@ class SupabaseService {
     required String content,
   }) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     final userId = client.auth.currentUser!.id;
 
@@ -409,7 +409,7 @@ class SupabaseService {
 
   static Future<void> toggleLike(String postId, bool isCurrentlyLiked) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     final userId = client.auth.currentUser!.id;
 
@@ -438,7 +438,7 @@ class SupabaseService {
 
   static Future<void> addComment(String postId, String content) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     final userId = client.auth.currentUser!.id;
     await client.from('post_comments').insert({
@@ -450,7 +450,7 @@ class SupabaseService {
 
   static Future<void> deleteComment(String commentId) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     final userId = client.auth.currentUser!.id;
 
@@ -473,7 +473,7 @@ class SupabaseService {
 
       return client.storage.from('posts').getPublicUrl(fileName);
     } catch (e) {
-      debugPrint('Error al subir imagen del post: $e');
+      debugPrint('Error uploading post image: $e');
       rethrow;
     }
   }
@@ -483,7 +483,7 @@ class SupabaseService {
     List<String> options,
   ) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     for (var option in options) {
       if (option.trim().isNotEmpty) {
@@ -505,7 +505,7 @@ class SupabaseService {
 
   static Future<void> votePoll(String postId, String optionId) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     final userId = client.auth.currentUser!.id;
 
@@ -522,7 +522,7 @@ class SupabaseService {
     required List<String> options,
   }) async {
     final authenticated = await ensureAuthenticated();
-    if (!authenticated) throw Exception('No autenticado.');
+    if (!authenticated) throw Exception('Not authenticated.');
 
     final userId = client.auth.currentUser!.id;
 

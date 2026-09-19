@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, rellena todos los campos')),
+        const SnackBar(content: Text('Please fill in all fields')),
       );
       return;
     }
@@ -39,14 +39,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       if (_isSignUp) {
-        // Registro
         await _supabase.auth.signUp(email: email, password: password);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-              '¡Cuenta creada con éxito! Ya puedes iniciar sesión.',
-            ),
+            content: Text('Account successfully created! You can now log in.'),
           ),
         );
         setState(() => _isSignUp = false);
@@ -93,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                _isSignUp ? 'Crear Cuenta' : 'Bienvenido de nuevo',
+                _isSignUp ? 'Create Account' : 'Welcome Back',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -105,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: _emailController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Correo electrónico',
+                  hintText: 'Email',
                   hintStyle: TextStyle(color: Colors.grey[600]),
                   filled: true,
                   fillColor: const Color(0xFF1C2228),
@@ -125,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: true,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Contraseña',
+                  hintText: 'Password',
                   hintStyle: TextStyle(color: Colors.grey[600]),
                   filled: true,
                   fillColor: const Color(0xFF1C2228),
@@ -152,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.black)
                       : Text(
-                          _isSignUp ? 'Registrarse' : 'Iniciar Sesión',
+                          _isSignUp ? 'Sign Up' : 'Log In',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -165,8 +162,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () => setState(() => _isSignUp = !_isSignUp),
                 child: Text(
                   _isSignUp
-                      ? '¿Ya tienes cuenta? Inicia sesión'
-                      : '¿No tienes cuenta? Regístrate',
+                      ? 'Already have an account? Log in'
+                      : 'Don\'t have an account? Sign up',
                   style: const TextStyle(color: Colors.greenAccent),
                 ),
               ),

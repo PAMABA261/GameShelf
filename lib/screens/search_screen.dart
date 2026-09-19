@@ -109,7 +109,7 @@ class _SearchScreenState extends State<SearchScreen> {
           'kaizo',
           'randomizer',
           'unofficial',
-          'no oficial',
+          'unofficial',
           'clone',
           'port',
           'homebrew',
@@ -140,11 +140,11 @@ class _SearchScreenState extends State<SearchScreen> {
           _offset += _limit;
         });
       } else {
-        debugPrint('Error de red: ${response.statusCode}');
+        debugPrint('Network error: ${response.statusCode}');
       }
     } catch (e) {
       if (!mounted) return;
-      debugPrint('Excepción: $e');
+      debugPrint('Exception: $e');
     } finally {
       if (mounted) {
         setState(() {
@@ -160,7 +160,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Catálogo de Juegos',
+          'Game Catalog',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF1C2228),
@@ -175,7 +175,7 @@ class _SearchScreenState extends State<SearchScreen> {
               onChanged: _onSearchChanged,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                hintText: 'Escribe para buscar juegos...',
+                hintText: 'Type to search games...',
                 hintStyle: TextStyle(color: Colors.grey[600]),
                 filled: true,
                 fillColor: const Color(0xFF2C3440),
@@ -209,7 +209,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: _games.isEmpty
                   ? Center(
                       child: Text(
-                        'Escribe el nombre de un juego para empezar',
+                        'Type a game name to start searching',
                         style: TextStyle(color: Colors.grey[500], fontSize: 16),
                       ),
                     )
